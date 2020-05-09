@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/7.14.3/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/7.14.3/firebase-messaging.js"></script>
+    <script defer src="/__/firebase/7.14.3/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script defer src="/__/firebase/init.js"></script>
+    </style>
+  </head>
+  <body>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+
+        const messaging = firebase.messaging();
+        const functions = firebase.functions();
+
+        messaging.usePublicVapidKey('BBwVmqHq62M5jwwzicOfs3dHm4cegJiHMzJblu3NhyP3QM5EmrgdKCDryWJRhUZJraCxpTnNgScN3BPh7FqJJmg');
+
+        messaging.requestPermission().then(() => {
+          messaging.getToken().then((currentToken) => {
+            if (currentToken) {
+              var sendMessage = functions.httpsCallable('sendMessage');
+              sendMessage({token: currentToken});
+            }
+          });
+          setInterval(() => {
+            navigator.serviceWorker.register('firebase-messaging-sw.js').then((registration) => {
+              registration.getNotifications({tag: 'thisIsATag'}).then((notifications) => {
+                notifications.forEach((notification) => {
+                  notification.close();
+                });
+              });
+            });
+          }, 10000);
+        });
+      });
+    </script>
+  </body>
+</html>
